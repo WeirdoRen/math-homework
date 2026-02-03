@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>⚠ SYSTEM ALERT — CRITICAL THREAT DETECTED</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:      #0a0a0a;
+    --red:     #e94560;
+    --darkred: #7a1a2a;
+    --orange:  #ff6b35;
+    --green:   #39ff14;
+    --text:    #eee;
+    --dim:     #666;
+    --card:    #111111;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    min-height:100vh;
+    background: var(--bg);
+    font-family:'Press Start 2P', cursive;
+    color: var(--text);
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+    position:relative;
+  }
+
+  /* ─── red flashing overlay at very top ─── */
+  .alert-bar {
+    position:fixed; top:0; left:0; right:0;
+    background: var(--red);
+    color:#fff;
+    text-align:center;
+    padding:10px 0;
+    font-size:0.62rem;
+    z-index:100;
+    animation: flashBar 0.8s ease-in-out infinite;
+    letter-spacing:1px;
+  }
+  @keyframes flashBar {
+    0%,100%{ background: var(--red); }
+    50%    { background: var(--darkred); }
+  }
+
+  /* ─── scanline effect overlay ─── */
+  body::after {
+    content:'';
+    position:fixed; inset:0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(0,0,0,0.15) 3px,
+      rgba(0,0,0,0.15) 4px
+    );
+    pointer-events:none; z-index:999;
+  }
+
+  /* ─── main card ─── */
+  .card {
+    position:relative; z-index:1;
+    background: var(--card);
+    border: 4px solid var(--red);
+    outline: 4px solid var(--darkred);
+    outline-offset:4px;
+    padding: 36px 32px 32px;
+    max-width:480px; width:90%;
+    margin-top:30px;
+    text-align:center;
+    animation: cardShake 0.4s ease infinite alternate;
+  }
+  @keyframes cardShake {
+    from { transform: translateX(-2px); }
+    to   { transform: translateX(2px);  }
+  }
+
+  /* ─── warning icon (pixel !) ─── */
+  .warn-icon {
+    width:60px; height:60px;
+    margin: 0 auto 18px;
+    position:relative;
+  }
+  .warn-icon canvas { image-rendering:pixelated; width:60px; height:60px; }
+
+  /* ─── title ─── */
+  .title {
+    font-size:0.85rem;
+    color: var(--red);
+    margin-bottom:14px;
+    line-height:2;
+    animation: titleFlash 1s ease-in-out infinite;
+  }
+  @keyframes titleFlash {
+    0%,100%{ color: var(--red); }
+    50%    { color: var(--orange); }
+  }
+
+  /* ─── threat info box ─── */
+  .info-box {
+    background:#1a1a1a;
+    border:2px solid var(--darkred);
+    padding:14px 16px;
+    margin-bottom:18px;
+    text-align:left;
+  }
+  .info-row {
+    display:flex; justify-content:space-between;
+    margin-bottom:8px; font-size:0.48rem; color:var(--dim);
+  }
+  .info-row:last-child { margin-bottom:0; }
+  .info-row span:last-child { color: var(--red); }
+  .info-label { color:#aaa; }
+
+  /* ─── scan progress bar ─── */
+  .scan-label {
+    font-size:0.5rem; color:var(--dim);
+    margin-bottom:6px; text-align:left;
+  }
+  .progress-track {
+    width:100%; height:14px;
+    background:#222;
+    border:2px solid #444;
+    margin-bottom:18px;
+    overflow:hidden;
+  }
+  .progress-fill {
+    height:100%;
+    background: var(--green);
+    width:0%;
+    box-shadow: inset 0 0 6px rgba(57,255,20,0.6);
+    animation: scanFill 2.2s steps(20) forwards;
+  }
+  @keyframes scanFill {
+    0%  { width:0%; }
+    60% { width:60%; }
+    62% { width:60%; }   /* tiny pause for drama */
+    100%{ width:100%; }
+  }
+
+  /* ─── "scan complete" text (shows after bar fills) ─── */
+  .scan-result {
+    font-size:0.52rem; color:var(--red);
+    margin-bottom:20px;
+    opacity:0;
+    animation: revealResult 0.3s 2.2s steps(1) forwards;
+  }
+  @keyframes revealResult {
+    to { opacity:1; }
+  }
+
+  /* ─── big CTA button ─── */
+  .btn-remove {
+    display:inline-block;
+    font-family:'Press Start 2P', cursive;
+    font-size:0.7rem;
+    color:#fff;
+    background: var(--red);
+    border:none;
+    padding:14px 28px;
+    cursor:pointer;
+    text-decoration:none;
+    box-shadow: 4px 4px 0 var(--darkred);
+    transition: transform .1s, box-shadow .1s;
+    animation: btnPulse 1.2s ease-in-out infinite;
+    position:relative; z-index:2;
+  }
+  .btn-remove:hover {
+    transform:translateY(-2px);
+    box-shadow:4px 6px 0 var(--darkred);
+  }
+  .btn-remove:active {
+    transform:translateY(2px);
+    box-shadow:2px 2px 0 var(--darkred);
+  }
+  @keyframes btnPulse {
+    0%,100%{ box-shadow: 4px 4px 0 var(--darkred); }
+    50%    { box-shadow: 4px 4px 12px rgba(233,69,96,0.6); }
+  }
+
+  /* ─── fine print ─── */
+  .fine-print {
+    font-size:0.4rem; color:var(--dim);
+    margin-top:16px; line-height:2;
+  }
+
+  /* ─── floating red pixel glitches ─── */
+  .glitch {
+    position:fixed;
+    background: var(--red);
+    opacity:0;
+    pointer-events:none; z-index:0;
+    animation: glitchFade 3s linear infinite;
+  }
+  @keyframes glitchFade {
+    0%   { opacity:0; transform:translateX(0); }
+    10%  { opacity:0.7; }
+    12%  { transform:translateX(8px); }
+    14%  { transform:translateX(-4px); }
+    16%  { transform:translateX(0); }
+    40%  { opacity:0.7; }
+    42%  { opacity:0; }
+    100% { opacity:0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- flashing top bar -->
+<div class="alert-bar">⚠ CRITICAL SECURITY THREAT DETECTED ⚠ — ACTION REQUIRED IMMEDIATELY</div>
+
+<!-- main warning card -->
+<div class="card">
+
+  <!-- pixel warning triangle icon -->
+  <div class="warn-icon">
+    <canvas id="warnIcon" width="15" height="15"></canvas>
+  </div>
+
+  <p class="title">⚠ VIRUS DETECTED<br>ON YOUR SYSTEM</p>
+
+  <!-- threat details -->
+  <div class="info-box">
+    <div class="info-row"><span class="info-label">Threat Type:</span><span>Trojan.GenericKD.47291</span></div>
+    <div class="info-row"><span class="info-label">Status:</span><span style="color:var(--orange)">● ACTIVE</span></div>
+    <div class="info-row"><span class="info-label">Location:</span><span>C:\System\core32.dll</span></div>
+    <div class="info-row"><span class="info-label">Risk Level:</span><span style="color:var(--red)">🔴 CRITICAL</span></div>
+    <div class="info-row"><span class="info-label">Files Affected:</span><span>47</span></div>
+  </div>
+
+  <!-- scan bar -->
+  <p class="scan-label">▶ Running system scan…</p>
+  <div class="progress-track">
+    <div class="progress-fill"></div>
+  </div>
+  <p class="scan-result">✖ Scan Complete — 3 threats found!</p>
+
+  <!-- the sneaky button -->
+  <a href="askout.html" class="btn-remove">🛡 REMOVE VIRUS NOW</a>
+
+  <p class="fine-print">
+    Your data may be compromised.<br>
+    Click the button above immediately to secure your system.
+  </p>
+</div>
+
+<script>
+// ─── spawn random red glitch blocks ───
+function spawnGlitch(){
+  const g = document.createElement('div');
+  g.className = 'glitch';
+  const w = 4 + Math.floor(Math.random()*20);
+  const h = 3 + Math.floor(Math.random()*8);
+  g.style.width  = w+'px';
+  g.style.height = h+'px';
+  g.style.left   = Math.random()*100+'vw';
+  g.style.top    = Math.random()*100+'vh';
+  g.style.animationDuration = (2+Math.random()*2.5)+'s';
+  g.style.animationDelay    = Math.random()*1.5+'s';
+  document.body.appendChild(g);
+  setTimeout(()=> g.remove(), 5000);
+}
+setInterval(spawnGlitch, 400);
+for(let i=0;i<10;i++) setTimeout(spawnGlitch, i*150);
+
+// ─── pixel warning triangle (15×15) ───
+(function(){
+  const cv = document.getElementById('warnIcon');
+  const ctx = cv.getContext('2d');
+  const R = '#e94560';
+  const Y = '#ffcc00';
+  const B = '#000000';
+
+  function b(x,y,w,h,c){ ctx.fillStyle=c; ctx.fillRect(x,y,w,h); }
+
+  // triangle outline (red)
+  //       row 0:          center 1px
+  //       row 1:        3px
+  //       ...            grows by 2 each row
+  //       row 7:        15px  (full width)
+  const mid = 7; // center x
+  for(let row=0; row<8; row++){
+    const halfW = row;
+    const x1 = mid - halfW;
+    const x2 = mid + halfW;
+    // left edge
+    b(x1, row, 1, 1, R);
+    // right edge
+    if(x2 !== x1) b(x2, row, 1, 1, R);
+    // top tip fill yellow for first rows
+    if(row <= 1) b(x1, row, x2-x1+1, 1, Y);
+  }
+  // full base row
+  b(0, 7, 15, 1, R);
+
+  // fill interior yellow
+  for(let row=1; row<7; row++){
+    const halfW = row;
+    b(mid-halfW+1, row, halfW*2-1, 1, Y);
+  }
+
+  // red border again (top)
+  b(7,0,1,1,R);
+  b(6,1,1,1,R); b(8,1,1,1,R);
+  b(5,2,1,1,R); b(9,2,1,1,R);
+  b(4,3,1,1,R); b(10,3,1,1,R);
+  b(3,4,1,1,R); b(11,4,1,1,R);
+  b(2,5,1,1,R); b(12,5,1,1,R);
+  b(1,6,1,1,R); b(13,6,1,1,R);
+  b(0,7,15,1,R);
+
+  // bottom rows (rectangle base)
+  b(1,8,  13,1, R);
+  b(1,9,  13,4, Y);
+  b(1,13, 13,1, R);
+  b(1,8,  1,6, R);
+  b(13,8, 1,6, R);
+
+  // exclamation mark — black
+  b(7,9,  1,3, B);  // stick
+  b(7,13, 1,1, B);  // dot — already on base, shift up
+  // fix: dot at row 12
+  b(7,12, 1,1, B);
+})();
+</script>
+</body>
+</html>
